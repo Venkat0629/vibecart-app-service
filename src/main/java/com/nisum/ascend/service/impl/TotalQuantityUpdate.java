@@ -3,6 +3,7 @@ package com.nisum.ascend.service.impl;
 import com.nisum.ascend.dto.SkuQuantityResponse;
 import com.nisum.ascend.dto.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpEntity;
@@ -23,6 +24,9 @@ public class TotalQuantityUpdate {
 
     private final RestTemplate restTemplate;
 
+    @Value("${external.inventory.api.url}")
+    private String EXTERNAL_INVENTORY_API_URL;
+
     @Autowired
     public TotalQuantityUpdate(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
@@ -30,12 +34,9 @@ public class TotalQuantityUpdate {
 
     @PostMapping("/total-quantity")
     public ResponseEntity<List<SkuQuantityResponse>> checkItemQuantity(@RequestBody List<Long> skuList) {
-        String url = "http://localhost:5601/vibe-cart/scm/inventory/check-quantity";
         HttpEntity<List<Long>> requestEntity = new HttpEntity<>(skuList);
-        ResponseEntity<ApiResponse<List<Integer>>> response = restTemplate.exchange(
-                url, HttpMethod.POST, requestEntity, new ParameterizedTypeReference<ApiResponse<List<Integer>>>() {
-                }
-        );
+        ResponseEntity<ApiResponse<List<Integer>>> response = restTemplate.exchange(EXTERNAL_INVENTORY_API_URL, HttpMethod.POST, requestEntity, new ParameterizedTypeReference<ApiResponse<List<Integer>>>() {
+        });
         ApiResponse<List<Integer>> responseBody = response.getBody();
         List<SkuQuantityResponse> responseList = new ArrayList<>();
         for (int i = 0; i < skuList.size(); i++) {

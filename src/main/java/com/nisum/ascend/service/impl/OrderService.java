@@ -5,6 +5,7 @@ import com.nisum.ascend.dto.OrderDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -20,8 +21,8 @@ public class OrderService {
 
     @Autowired
     private SendEmail sendEmailTest;
-
-    private static final String EXTERNAL_ORDER_API_URL = "http://localhost:5601/vibe-cart/scm/orders/createOrder";
+    @Value("${external.order.api.url}")
+    private String EXTERNAL_ORDER_API_URL;
 
     public OrderDTO createOrder(OrderDTO orderDTO) {
         orderDTO.setOrderId("NA");
@@ -30,12 +31,8 @@ public class OrderService {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<OrderDTO> requestEntity = new HttpEntity<>(orderDTO, headers);
-            ResponseEntity<ApiResponse<OrderDTO>> response = restTemplate.exchange(
-                    EXTERNAL_ORDER_API_URL,
-                    HttpMethod.POST,
-                    requestEntity,
-                    new ParameterizedTypeReference<ApiResponse<OrderDTO>>() {}
-            );
+            ResponseEntity<ApiResponse<OrderDTO>> response = restTemplate.exchange(EXTERNAL_ORDER_API_URL, HttpMethod.POST, requestEntity, new ParameterizedTypeReference<ApiResponse<OrderDTO>>() {
+            });
             ApiResponse<OrderDTO> apiResponse = response.getBody();
             createdOrder = apiResponse != null ? apiResponse.getData() : null;
             if (createdOrder != null) {

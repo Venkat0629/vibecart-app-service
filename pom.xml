@@ -15,7 +15,7 @@
         <relativePath/>
     </parent>
     <groupId>com.nisum.ascend</groupId>
-    <artifactId>ecom-site-service</artifactId>
+    <artifactId>vibecart-app-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>ecom-site-service</name>
     <description>ECOM For Vibe Cart Service</description>
