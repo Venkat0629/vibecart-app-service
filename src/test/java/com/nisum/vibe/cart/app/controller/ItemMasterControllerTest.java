@@ -43,7 +43,6 @@ public class ItemMasterControllerTest {
     @MockBean
     private ItemMasterService itemMasterService;
 
-    @Value("${image.upload.dir}")
     private String uploadDir="E:/images";
 
     @BeforeEach

@@ -25,6 +25,8 @@ public class ItemMasterServiceImpl implements ItemMasterService {
 
     private static final Logger log = LoggerFactory.getLogger(ItemMasterServiceImpl.class);
     private final ItemMasterRepository itemMasterRepository;
+    @Value("${image.fe.url}")
+    private String basicUrl;
 
     @Autowired
     public ItemMasterServiceImpl(ItemMasterRepository itemMasterRepository) {
@@ -119,8 +121,6 @@ public class ItemMasterServiceImpl implements ItemMasterService {
         return itemsByCategoryName.stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
-    @Value("${image.fe.url}")
-    private String basicUrl;
 
     private ItemMasterDTO convertToDTO(ItemMaster itemMaster) {
         log.debug("Converting item entity to DTO: {}", itemMaster);

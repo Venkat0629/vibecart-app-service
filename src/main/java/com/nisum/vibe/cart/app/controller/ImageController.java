@@ -57,7 +57,7 @@ public class ImageController {
             }
 
             // Return the image resource with appropriate headers
-            return ResponseEntity.ok().contentType(MediaType.parseMediaType("image/jpeg")).header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + filename + "\"").body(resource);
+            return ResponseEntity.ok().contentType(MediaType.parseMediaType(imageService.generateContentType(filename))).header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + filename + "\"").body(resource);
 
         } catch (Exception e) {
             log.error("Error retrieving file: {}", e.getMessage(), e);

@@ -24,8 +24,6 @@ public class ItemMasterController {
 
     private final ItemMasterService itemMasterService;
     private static final Logger log = LoggerFactory.getLogger(ItemMasterController.class);
-    @Value("${image.upload.dir}")
-    private String uploadDir;
 
     @Autowired
     public ItemMasterController(ItemMasterService itemMasterService) {
@@ -77,33 +75,5 @@ public class ItemMasterController {
         log.info("list of skuIDs: itemid: {}, skuIDs: {}", itemID, allSkuIDsByItemID.get("skuIDs"));
         return ResponseEntity.ok(allSkuIDsByItemID);
     }
-
-
-    @GetMapping("/images/{filename}")
-    public ResponseEntity<Resource> getImage(@PathVariable String filename) throws Exception {
-        // Construct the full path to the image file
-        Path filePath = Paths.get(uploadDir).resolve(filename).normalize();
-
-        // Create a UrlResource from the file path
-        Resource resource = new UrlResource(filePath.toUri());
-
-        // Check if the resource exists and is readable
-        if (resource.exists() && resource.isReadable()) {
-            // Determine the content type
-            String contentType = "application/octet-stream"; // Fallback type
-            if (filename.endsWith(".png")) {
-                contentType = "image/png";
-            } else if (filename.endsWith(".jpg") || filename.endsWith(".jpeg")) {
-                contentType = "image/jpeg";
-            } else if (filename.endsWith(".gif")) {
-                contentType = "image/gif";
-            }
-
-            return ResponseEntity.ok().contentType(MediaType.parseMediaType(contentType)).header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + filename + "\"").body(resource);
-        } else {
-            throw new RuntimeException("File not found or not readable: " + filename);
-        }
-    }
-
 
 }

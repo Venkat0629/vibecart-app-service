@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -23,6 +22,8 @@ public class ItemVariantServiceImpl implements ItemVariantService {
 
     private static final Logger log = LoggerFactory.getLogger(ItemVariantServiceImpl.class);
     private final ItemVariantRepository itemVariantRepository;
+    @Value("${image.fe.url}")
+    private String basicUrl;
 
     @Autowired
     public ItemVariantServiceImpl(ItemVariantRepository itemVariantRepository) {
@@ -47,19 +48,17 @@ public class ItemVariantServiceImpl implements ItemVariantService {
     @Override
     public ItemVariantDTO getItemVariantBySkuID(Long skuID) {
         log.info("Fetching item variant for SKU ID: {}", skuID);
-        ItemVariantDTO itemVariantDTO = itemVariantRepository.findById(skuID)
-                .map(this::convertToDTO)
-                .orElseThrow(() -> {
-                    log.error("No item found with SKU ID: {}", skuID);
-                    return new ResourceNotFoundException("No item found with the skuID: " + skuID);
-                });
+        ItemVariantDTO itemVariantDTO = itemVariantRepository.findById(skuID).map(this::convertToDTO).orElseThrow(() -> {
+            log.error("No item found with SKU ID: {}", skuID);
+            return new ResourceNotFoundException("No item found with the skuID: " + skuID);
+        });
         log.info("Found item variant for SKU ID: {}", skuID);
         return itemVariantDTO;
     }
 
     @Override
-    public List<ItemVariantDTO> findAllItemVariants(Integer limit){
-        if(limit!=null){
+    public List<ItemVariantDTO> findAllItemVariants(Integer limit) {
+        if (limit != null) {
             List<ItemVariant> limitedSkuItems = itemVariantRepository.findLimitedSkuItems(limit);
             return limitedSkuItems.stream().map(this::convertToDTO).collect(Collectors.toList());
         }
@@ -71,9 +70,7 @@ public class ItemVariantServiceImpl implements ItemVariantService {
     public ItemVariantDTO itemVariantBasedOnItemIDAndColorAndSize(Long itemID, Color color, Size size) {
         log.info("Fetching item variant for itemID: {}, color: {}, size: {}", itemID, color, size);
         List<ItemVariant> byItemMasterItemID = itemVariantRepository.findByItemMaster_ItemIDAndColorAndSize(itemID, color, size);
-        Optional<ItemVariant> first = byItemMasterItemID.stream()
-                .filter(itemVariant -> itemVariant.getColor().equals(color) && itemVariant.getSize().equals(size))
-                .findFirst();
+        Optional<ItemVariant> first = byItemMasterItemID.stream().filter(itemVariant -> itemVariant.getColor().equals(color) && itemVariant.getSize().equals(size)).findFirst();
 
         if (!first.isPresent()) {
             log.error("Item not available for itemID: {}, color: {}, size: {}", itemID, color, size);
@@ -86,12 +83,10 @@ public class ItemVariantServiceImpl implements ItemVariantService {
 
     //for inventory
     @Override
-    public List<ItemVariantDTO> getItemVariantsBySkuIDs(Set<Long> skuIDs){
+    public List<ItemVariantDTO> getItemVariantsBySkuIDs(Set<Long> skuIDs) {
         return skuIDs.stream().map(this::getItemVariantBySkuID).collect(Collectors.toList());
     }
 
-    @Value("${image.fe.url}")
-    private String basicUrl;
 
     private ItemVariantDTO convertToDTO(ItemVariant itemVariant) {
         log.debug("Converting item variant to DTO: {}", itemVariant);
