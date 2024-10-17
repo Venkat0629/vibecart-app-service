@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
@@ -32,6 +33,7 @@ public class ItemVariantServiceImpl implements ItemVariantService {
 
     //useful for OFMS
     @Override
+    @Cacheable(cacheNames = "ItemVariantCache", key = "#itemMasterItemID")
     public List<ItemVariantDTO> getAllVariantsByItemMasterItemID(Long itemMasterItemID) {
         log.info("Fetching all variants for itemMasterItemID: {}", itemMasterItemID);
         List<ItemVariant> allVariantsOfItemMaster = itemVariantRepository.findByItemMaster_itemID(itemMasterItemID);
@@ -46,6 +48,7 @@ public class ItemVariantServiceImpl implements ItemVariantService {
 
     //useful for OFMS, no change needed
     @Override
+    @Cacheable(cacheNames = "ItemVariantCache", key = "#skuID")
     public ItemVariantDTO getItemVariantBySkuID(Long skuID) {
         log.info("Fetching item variant for SKU ID: {}", skuID);
         ItemVariantDTO itemVariantDTO = itemVariantRepository.findById(skuID).map(this::convertToDTO).orElseThrow(() -> {
@@ -67,6 +70,7 @@ public class ItemVariantServiceImpl implements ItemVariantService {
 
     //primary method
     @Override
+    @Cacheable(cacheNames = "ItemVariantCache", key = "'itemVariant_' + #itemID + '_' + #color + '_' + #size")
     public ItemVariantDTO itemVariantBasedOnItemIDAndColorAndSize(Long itemID, Color color, Size size) {
         log.info("Fetching item variant for itemID: {}, color: {}, size: {}", itemID, color, size);
         List<ItemVariant> byItemMasterItemID = itemVariantRepository.findByItemMaster_ItemIDAndColorAndSize(itemID, color, size);

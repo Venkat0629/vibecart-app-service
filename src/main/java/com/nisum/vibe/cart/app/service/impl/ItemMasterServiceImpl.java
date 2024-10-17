@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -35,6 +36,7 @@ public class ItemMasterServiceImpl implements ItemMasterService {
 
 
     @Override
+    @Cacheable(cacheNames = "ItemMasterCache", key = "#id")
     public ItemMasterDTO findById(Long id) {
         log.info("Fetching item with ID: {}", id);
         ItemMaster itemMaster = itemMasterRepository.findById(id)
@@ -44,6 +46,7 @@ public class ItemMasterServiceImpl implements ItemMasterService {
     }
 
     @Override
+    @Cacheable(cacheNames = "ItemMasterCache", key = "'itemMaster_' + #limit + '_' + #sortingCriteria")
     public List<ItemMasterDTO> findAll(Integer limit, String sortingCriteria) {
         log.info("Fetching all items with limit: {} and sortingCriteria: {}", limit, sortingCriteria);
         List<ItemMasterDTO> items;
@@ -66,6 +69,7 @@ public class ItemMasterServiceImpl implements ItemMasterService {
 
     //to fetch items based on catalogName
     @Override
+    @Cacheable(cacheNames = "ItemMasterCache", key = "'catalog_' + #catalogName + '_' + #sortingCriteria")
     public List<ItemMasterDTO> findItemsByCatalogName(String catalogName, String sortingCriteria) {
         log.info("Fetching items for catalog: {} with sorting criteria: {}", catalogName, sortingCriteria);
         if(sortingCriteria!=null){
@@ -89,6 +93,7 @@ public class ItemMasterServiceImpl implements ItemMasterService {
 
     //to get all sku IDs related to item id
     @Override
+    @Cacheable(cacheNames = "ItemMasterCache", key = "'skuIDs_' + #itemID")
     public Map<String,List<Long>> getAllSkuIDsByItemID(Long itemID){
         log.info("Fetching SKU IDs for item ID: {}", itemID);
         Map<String,List<Long>> skuIDs=new HashMap<>();
@@ -107,6 +112,7 @@ public class ItemMasterServiceImpl implements ItemMasterService {
 
     //to find items based on category name, can also be used for sorting based on price
     @Override
+    @Cacheable(cacheNames = "ItemMasterCache", key = "'category_' + #categoryName + '_' + #sortingCriteria")
     public List<ItemMasterDTO> findByCategoryName(String categoryName, String sortingCriteria) {
         log.info("Fetching items for category: {} with sorting criteria: {}", categoryName, sortingCriteria);
         if (sortingCriteria != null) {
